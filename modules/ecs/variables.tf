@@ -22,3 +22,23 @@ variable "private_subnet_ids" {
   description = "IDs of private subnets where the ECS service will be deployed to."
   type        = list(string)
 }
+variable "ecs_task_cpu" {
+  description = "CPU units for the ECS task."
+  type        = number
+  default     = 256
+}
+variable "ecs_task_memory" {
+  description = "Memory in MiB for the ECS task."
+  type        = number
+  default     = 512 
+}
+variable "ecs_task_command" {
+  description = "Command to run in the ECS task. Defaults to null."
+  type        = list(string)
+  default     = null
+}
+variable "ecs_task_entrypoint" {
+  description = "Entrypoint for the ECS task. Defaults to null."
+  type        = list(string)
+  default     = null
+}

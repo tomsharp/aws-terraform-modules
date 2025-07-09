@@ -108,19 +108,20 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy_attach" {
 resource "aws_cloudwatch_log_group" "ecs" {
   name = "/aws/ecs/${var.app_name}/cluster"
 }
-resource "aws_ecs_task_definition" "api" {
-  family                   = "${var.app_name}-api-task"
+resource "aws_ecs_task_definition" "this" {
+  family                   = "${var.app_name}-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_execution_role.arn
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = var.ecs_task_cpu
+  memory                   = var.ecs_task_memory
   container_definitions = jsonencode([
     {
-      name    = "${var.app_name}-api-container"
+      name    = "${var.app_name}-task-container"
       image   = "${var.image}"
-      command = ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+      command    = var.command != null ? var.command : null
+      entryPoint = var.entrypoint != null ? var.entrypoint : null
       portMappings = [
         {
           hostPort      = 80
@@ -171,7 +172,7 @@ resource "aws_ecs_service" "api" {
   cluster         = aws_ecs_cluster.this.name
   launch_type     = "FARGATE"
   desired_count   = length(var.private_subnet_ids)
-  task_definition = aws_ecs_task_definition.api.arn
+  task_definition = aws_ecs_task_definition.this.arn
   network_configuration {
     subnets         = var.private_subnet_ids
     security_groups = [aws_security_group.ecs.id]
