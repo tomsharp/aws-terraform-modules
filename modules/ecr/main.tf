@@ -8,10 +8,11 @@ resource "null_resource" "docker_push" {
       APP_NAME="${var.app_name}"
       REGION="${var.region}"
       REPO_URI="${aws_ecr_repository.this.repository_url}"
+      REGISTRY_DOMAIN=$(echo "$REPO_URI" | cut -d'/' -f1)
 
       echo "[1] Logging in to ECR..."
       aws ecr get-login-password --region "$REGION" | \
-        docker login --username AWS --password-stdin "$REPO_URI"
+        docker login --username AWS --password-stdin "$REGISTRY_DOMAIN"
 
       echo "[2] Building Docker image..."
       docker build -f ${var.path_to_dockerfile} -t "$APP_NAME" .
