@@ -1,20 +1,12 @@
 variable "app_name" {
-  description = "Name of the app."
-  type        = string
+    description = "The name of the application"
+    type        = string
 }
-
 variable "region" {
-  description = "AWS region to deploy the ECR to."
-  type        = string
+    description = "The AWS region to deploy to"
+    type        = string
 }
-
-variable "path_to_dockerfile" {
-  description = "Path to the Dockerfile relative to the module root."
-  type        = string
-}
-
-variable "tag" {
-  description = "Tag for the Docker image."
-  type        = string
-  default     = "latest"
+variable "dockerfile_path" {
+    description = "The path to the Dockerfile"
+    type        = string
 }

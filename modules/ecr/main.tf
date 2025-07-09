@@ -1,6 +1,5 @@
 resource "aws_ecr_repository" "this" {
   name = var.app_name
-  force_delete = true
 }
 
 resource "null_resource" "docker_push" {
@@ -10,17 +9,19 @@ resource "null_resource" "docker_push" {
       REGION="${var.region}"
       REPO_URI="${aws_ecr_repository.this.repository_url}"
       REGISTRY_DOMAIN=$(echo "$REPO_URI" | cut -d'/' -f1)
+      TAG="latest"
 
-      echo "[1] Logging in to ECR..."
-      aws ecr get-login-password --region "$REGION" | \
-        docker login --username AWS --password-stdin "$REGISTRY_DOMAIN"
+      echo "Logging in to ECR"
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REGISTRY_DOMAIN
 
-      echo "[2] Building Docker image..."
-      docker build -f ${var.path_to_dockerfile} -t "$APP_NAME" .
+      echo "Building image"
+      docker build --no-cache -t $APP_NAME . --no-cache -f ${var.dockerfile_path}
 
-      echo "[3] Tagging and pushing to $REPO_URI..."
-      docker tag "$APP_NAME:${var.tag}" "$REPO_URI:${var.tag}"
-      docker push "$REPO_URI:${var.tag}"
+      echo "Tagging image"
+      docker tag $APP_NAME:$TAG $REPO_URI:$TAG
+
+      echo "Pushing image to ECR"
+      docker push $REPO_URI:$TAG
     EOT
     interpreter = ["/bin/bash", "-c"]
   }
