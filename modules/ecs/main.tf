@@ -120,8 +120,8 @@ resource "aws_ecs_task_definition" "this" {
     {
       name    = "${var.app_name}-task-container"
       image   = "${var.image}"
-      command    = var.command != null ? var.command : null
-      entryPoint = var.entrypoint != null ? var.entrypoint : null
+      command    = var.ecs_task_command != null ? var.ecs_task_command : null
+      entryPoint = var.ecs_task_entrypoint != null ? var.ecs_task_entrypoint : null
       portMappings = [
         {
           hostPort      = 80
